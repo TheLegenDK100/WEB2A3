@@ -1,0 +1,48 @@
+.weather-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+  padding: 22px;
+  border-left: 4px solid var(--green);
+  background: var(--green-soft);
+}
+h2 {
+  margin: 0;
+  font: 750 24px var(--font-display);
+}
+.forecast {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 16px;
+  padding-left: 20px;
+  border-left: 1px solid #b7daca;
+}
+.forecast strong {
+  font-size: 17px;
+}
+.forecast span {
+  font-size: 13px;
+}
+.forecast small {
+  grid-column: 1/-1;
+  color: var(--muted);
+}
+.weather-message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.loading {
+  padding: 0;
+}
+@media (max-width: 620px) {
+  .weather-panel {
+    grid-template-columns: 1fr;
+  }
+  .forecast {
+    padding: 15px 0 0;
+    border-left: 0;
+    border-top: 1px solid #b7daca;
+  }
+}

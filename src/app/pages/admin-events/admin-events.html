@@ -1,0 +1,132 @@
+<section class="admin-head">
+  <div class="container">
+    <div>
+      <p class="eyebrow">Administration</p>
+      <h1>Event management</h1>
+      <p>
+        View every active, past and suspended event. Manage event records and review registration
+        totals.
+      </p>
+    </div>
+    <a class="button green" routerLink="/admin/events/new"><app-icon name="plus" />Create event</a>
+  </div>
+</section>
+<section class="page-band">
+  <div class="container">
+    @if (message()) {
+      <p class="notice" role="status">{{ message() }}</p>
+    }
+    @if (error()) {
+      <p class="notice error" role="alert">{{ error() }}</p>
+    }
+    @if (loading()) {
+      <p class="loading">Loading all events...</p>
+    }
+    @if (!loading()) {
+      <div class="summary">
+        <span
+          ><strong>{{ events().length }}</strong
+          >Total events</span
+        ><span
+          ><strong>{{ publicCount() }}</strong
+          >Public</span
+        ><span
+          ><strong>{{ suspendedCount() }}</strong
+          >Suspended</span
+        ><span
+          ><strong>{{ registrationCount() }}</strong
+          >Registrations</span
+        >
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Fundraising</th>
+              <th>Registrations</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (event of events(); track event.id) {
+              <tr>
+                <td>
+                  <strong>{{ event.name }}</strong
+                  ><small>{{ event.category_name }} · {{ event.location }}</small>
+                </td>
+                <td>
+                  {{ event.event_datetime | date: 'd MMM y'
+                  }}<small>{{ event.event_datetime | date: 'h:mm a' }}</small>
+                </td>
+                <td>
+                  <span
+                    class="badge"
+                    [class.suspended]="event.is_suspended"
+                    [class.past]="status(event) === 'Past'"
+                    >{{ status(event) }}</span
+                  >
+                </td>
+                <td>
+                  {{ event.total_progress | currency: 'AUD' : 'symbol' : '1.0-0'
+                  }}<small
+                    >of {{ event.charity_goal | currency: 'AUD' : 'symbol' : '1.0-0' }}</small
+                  >
+                </td>
+                <td>{{ event.registration_count }}</td>
+                <td>
+                  <div class="row-actions">
+                    <a class="button secondary" [routerLink]="['/admin/events', event.id, 'edit']"
+                      ><app-icon name="pencil" />Edit</a
+                    ><button class="button danger" type="button" (click)="openDelete(event)">
+                      <app-icon name="trash" />Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>
+<dialog
+  #deleteDialog
+  class="modal"
+  aria-labelledby="delete-title"
+  (cancel)="$event.preventDefault(); closeDelete()"
+>
+  @if (deleteTarget(); as target) {
+    <p class="eyebrow">Confirm deletion</p>
+    <h2 id="delete-title">Delete {{ target.name }}?</h2>
+    @if (target.registration_count > 0) {
+      <p class="notice warning">
+        This event has {{ target.registration_count }} registration(s) and cannot be deleted.
+      </p>
+    } @else {
+      <p>This action permanently removes the event record.</p>
+    }
+    <div class="actions">
+      <button
+        class="button danger"
+        type="button"
+        [disabled]="target.registration_count > 0 || deleting()"
+        (click)="confirmDelete()"
+      >
+        <app-icon name="trash" />{{ deleting() ? 'Deleting...' : 'Delete event' }}
+      </button>
+    </div>
+  }
+  <button
+    class="button secondary"
+    type="button"
+    autofocus
+    [disabled]="deleting()"
+    (click)="closeDelete()"
+  >
+    Cancel
+  </button>
+</dialog>

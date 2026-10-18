@@ -1,0 +1,19 @@
+<section class="weather-panel" aria-labelledby="weather-heading">
+  <div>
+    <p class="eyebrow">Open-Meteo forecast</p>
+    <h2 id="weather-heading">Event day weather</h2>
+  </div>
+  @if (loading()) {
+    <p class="loading">Loading live forecast...</p>
+  }
+  @if (unavailable()) {
+    <p class="weather-message">{{ unavailable() }}</p>
+  }
+  @if (forecast(); as item) {
+    <div class="forecast">
+      <strong>{{ item.label }}</strong
+      ><span>{{ item.min }}°C – {{ item.max }}°C</span><span>{{ item.rain }}% chance of rain</span
+      ><small>{{ item.date | date: 'd MMMM y' }}</small>
+    </div>
+  }
+</section>

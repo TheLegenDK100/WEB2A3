@@ -1,0 +1,168 @@
+<section class="register-page">
+  <div class="container">
+    @if (loading()) {
+      <p class="loading">Loading registration...</p>
+    }
+    @if (error() && !event()) {
+      <div class="notice error">
+        <strong>Registration unavailable</strong>
+        <p>{{ error() }}</p>
+        <a class="button secondary" routerLink="/search">Find another event</a>
+      </div>
+    }
+    @if (success(); as confirmation) {
+      <div class="confirmation">
+        <span aria-hidden="true"><app-icon name="check" /></span>
+        <p class="eyebrow">Registration complete</p>
+        <h1>You are on the list.</h1>
+        <p>
+          Your registration for <strong>{{ confirmation.event_name }}</strong> is confirmed.
+        </p>
+        <dl>
+          <div>
+            <dt>Confirmation</dt>
+            <dd>#HB-{{ confirmation.id }}</dd>
+          </div>
+          <div>
+            <dt>Contact</dt>
+            <dd>{{ form.controls.email.value }}</dd>
+          </div>
+        </dl>
+        <div class="actions">
+          <a class="button green" [routerLink]="['/events', event()?.id]">Return to event</a
+          ><a class="button secondary" routerLink="/search">Browse more events</a>
+        </div>
+      </div>
+    }
+    @if (event(); as item) {
+      @if (!success() && isPast(item)) {
+        <div class="notice">
+          <h1>Registration closed</h1>
+          <p>This event has already taken place.</p>
+          <a class="button secondary" routerLink="/search">Find another event</a>
+        </div>
+      }
+      @if (!success() && !isPast(item)) {
+        <div class="register-grid">
+          <div>
+            <a class="back-link" [routerLink]="['/events', item.id]"
+              ><app-icon name="arrow-left" />Back to event</a
+            >
+            <div class="page-heading">
+              <p class="eyebrow">Event registration</p>
+              <h1>Join {{ item.name }}</h1>
+              <p>
+                Your ticket pledges support for the event's charitable purpose. No payment is
+                collected online.
+              </p>
+            </div>
+            <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="first-name">First name</label
+                  ><input
+                    id="first-name"
+                    formControlName="first_name"
+                    autocomplete="given-name"
+                    [attr.aria-invalid]="invalid('first_name')"
+                  />
+                  @if (invalid('first_name')) {
+                    <p class="validation">Enter 2 to 80 characters.</p>
+                  }
+                </div>
+                <div class="field">
+                  <label for="last-name">Last name</label
+                  ><input
+                    id="last-name"
+                    formControlName="last_name"
+                    autocomplete="family-name"
+                    [attr.aria-invalid]="invalid('last_name')"
+                  />
+                  @if (invalid('last_name')) {
+                    <p class="validation">Enter 2 to 80 characters.</p>
+                  }
+                </div>
+                <div class="field">
+                  <label for="email">Email address</label
+                  ><input
+                    id="email"
+                    type="email"
+                    formControlName="email"
+                    autocomplete="email"
+                    [attr.aria-invalid]="invalid('email')"
+                  />
+                  @if (invalid('email')) {
+                    <p class="validation">Enter a valid email address.</p>
+                  }
+                </div>
+                <div class="field">
+                  <label for="phone">Phone number</label
+                  ><input
+                    id="phone"
+                    type="tel"
+                    formControlName="phone"
+                    autocomplete="tel"
+                    placeholder="+61 400 000 000"
+                    [attr.aria-invalid]="invalid('phone')"
+                  />
+                  @if (invalid('phone')) {
+                    <p class="validation">Enter a valid phone number.</p>
+                  }
+                </div>
+                <div class="field">
+                  <label for="tickets">Number of tickets</label
+                  ><input
+                    id="tickets"
+                    type="number"
+                    min="1"
+                    max="10"
+                    formControlName="ticket_count"
+                    [attr.aria-invalid]="invalid('ticket_count')"
+                  />
+                  @if (invalid('ticket_count')) {
+                    <p class="validation">Choose a whole number between 1 and 10.</p>
+                  }
+                </div>
+              </div>
+              @if (error()) {
+                <p class="notice error" role="alert">{{ error() }}</p>
+              }
+              <button class="button green submit" type="submit" [disabled]="submitting()">
+                <app-icon name="check" />{{
+                  submitting() ? 'Saving registration...' : 'Confirm registration'
+                }}
+              </button>
+            </form>
+          </div>
+          <aside>
+            <img [src]="item.image_path" [alt]="item.name" />
+            <div>
+              <p class="eyebrow">Registration summary</p>
+              <h2>{{ item.name }}</h2>
+              <dl>
+                <div>
+                  <dt>Date</dt>
+                  <dd>{{ item.event_datetime | date: 'd MMM y, h:mm a' }}</dd>
+                </div>
+                <div>
+                  <dt>Location</dt>
+                  <dd>{{ item.location }}</dd>
+                </div>
+                <div>
+                  <dt>Per ticket</dt>
+                  <dd>
+                    {{ item.ticket_price === 0 ? 'Free' : (item.ticket_price | currency: 'AUD') }}
+                  </dd>
+                </div>
+                <div class="total">
+                  <dt>Total contribution</dt>
+                  <dd>{{ total() === 0 ? 'Free' : (total() | currency: 'AUD') }}</dd>
+                </div>
+              </dl>
+            </div>
+          </aside>
+        </div>
+      }
+    }
+  </div>
+</section>

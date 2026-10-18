@@ -1,0 +1,26 @@
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" routerLink="/" (click)="closeMenu()" aria-label="HopeBridge home"
+      ><span class="brand-mark" aria-hidden="true">H</span
+      ><span><strong>HopeBridge</strong><small>Charity Events</small></span></a
+    ><button
+      class="menu-button"
+      type="button"
+      (click)="menuOpen.set(!menuOpen())"
+      [attr.aria-expanded]="menuOpen()"
+      aria-label="Toggle navigation"
+    >
+      <app-icon [name]="menuOpen() ? 'close' : 'menu'" />
+    </button>
+    <nav [class.open]="menuOpen()" aria-label="Primary navigation">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="closeMenu()"
+        >Home</a
+      ><a routerLink="/search" routerLinkActive="active" (click)="closeMenu()">Search Events</a
+      ><a routerLink="/admin/events" routerLinkActive="active" (click)="closeMenu()">Admin</a>
+    </nav>
+  </div>
+</header>

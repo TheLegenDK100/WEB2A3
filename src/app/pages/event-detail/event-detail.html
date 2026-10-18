@@ -1,0 +1,122 @@
+@if (loading()) {
+  <div class="container page-band">
+    <p class="loading" role="status">Loading event details...</p>
+  </div>
+}
+@if (error()) {
+  <div class="container page-band">
+    <div class="notice error" role="alert">
+      <strong>Event unavailable</strong>
+      <p>{{ error() }}</p>
+      <a class="button secondary" routerLink="/search">Return to search</a>
+    </div>
+  </div>
+}
+@if (event(); as item) {
+  <article>
+    <header class="detail-hero">
+      <img [src]="item.image_path" [alt]="item.name" />
+      <div class="detail-overlay"></div>
+      <div class="container detail-title">
+        <p class="eyebrow">
+          {{ item.category_name }} · {{ isPast(item) ? 'Past event' : 'Upcoming event' }}
+        </p>
+        <h1>{{ item.name }}</h1>
+        <p>{{ item.location }}</p>
+      </div>
+    </header>
+    <section class="page-band">
+      <div class="container detail-grid">
+        <div class="main-column">
+          <div class="fact-row">
+            <div>
+              <span>Date and time</span
+              ><strong>{{ item.event_datetime | date: 'EEEE, d MMMM y' }}</strong
+              ><small>{{ item.event_datetime | date: 'h:mm a' }} · {{ item.event_timezone }}</small>
+            </div>
+            <div>
+              <span>Location</span><strong>{{ item.location }}</strong
+              ><small>Australia</small>
+            </div>
+            <div>
+              <span>Donation ticket</span
+              ><strong>{{
+                item.ticket_price === 0 ? 'Free' : (item.ticket_price | currency: 'AUD')
+              }}</strong
+              ><small>Funds support the stated cause</small>
+            </div>
+          </div>
+          <section class="copy">
+            <p class="eyebrow">About the event</p>
+            <h2>A gathering with a purpose</h2>
+            <p>{{ item.description }}</p>
+            <h3>Why it matters</h3>
+            <p>{{ item.purpose }}</p>
+          </section>
+          <app-weather [event]="item" />
+        </div>
+        <aside>
+          <div class="support-panel">
+            <p class="eyebrow">Fundraising progress</p>
+            <div class="amount">
+              <strong>{{ item.total_progress | currency: 'AUD' : 'symbol' : '1.0-0' }}</strong
+              ><span>of {{ item.charity_goal | currency: 'AUD' : 'symbol' : '1.0-0' }}</span>
+            </div>
+            <p>
+              Includes {{ item.current_progress | currency: 'AUD' }} recorded progress and
+              {{ item.total_progress - item.current_progress | currency: 'AUD' }} in ticket pledges.
+              No online payment is collected.
+            </p>
+            <div class="progress-track"><span [style.width.%]="progress(item)"></span></div>
+            <p>
+              {{ progress(item) }}% raised & pledged · {{ item.registered_tickets }} registered
+              ticket{{ item.registered_tickets === 1 ? '' : 's' }}
+            </p>
+            @if (isPast(item)) {
+              <button class="button" disabled>Registration closed</button>
+            } @else {
+              <a class="button" [routerLink]="['/register']" [queryParams]="{ event_id: item.id }"
+                >Register for this event</a
+              >
+            }
+          </div>
+          <div class="organisation">
+            <p class="eyebrow">Hosted by</p>
+            <h2>{{ item.organisation_name }}</h2>
+            <p>{{ item.organisation_mission }}</p>
+            <a [href]="'mailto:' + item.organisation_email">{{ item.organisation_email }}</a
+            ><span>{{ item.organisation_phone }}</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+    <section class="page-band soft">
+      <div class="container">
+        <div class="page-heading">
+          <p class="eyebrow">Community participation</p>
+          <h2>Recent registrations</h2>
+          <p>
+            Displayed newest first. Personal contact details remain private on the public website.
+          </p>
+        </div>
+        @if (publicRegistrations(item).length) {
+          <div class="registration-list">
+            @for (registration of publicRegistrations(item); track registration.id) {
+              <div>
+                <span class="initial">{{ registration.display_name.charAt(0) }}</span
+                ><strong>{{ registration.display_name }}</strong
+                ><span
+                  >{{ registration.ticket_count }} ticket{{
+                    registration.ticket_count === 1 ? '' : 's'
+                  }}</span
+                ><time>{{ registration.registered_at | date: 'd MMM y, h:mm a' }}</time>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="notice">Be the first person to register for this event.</p>
+        }
+      </div>
+    </section>
+  </article>
+}

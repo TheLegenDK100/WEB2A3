@@ -1,0 +1,71 @@
+<section class="hero">
+  <div class="hero-shade"></div>
+  <div class="container hero-content">
+    <p class="eyebrow">Community-powered giving</p>
+    <h1>HopeBridge<br />Charity Events</h1>
+    <p>
+      Discover local charity events, meet the organisations behind them, and register your support.
+    </p>
+    <div class="actions">
+      <a class="button" routerLink="/search">Find an event</a
+      ><a class="button secondary" href="#events">Explore what is next</a>
+    </div>
+  </div>
+</section>
+<section class="trust-strip" aria-label="Platform highlights">
+  <div class="container">
+    <span
+      ><strong>{{ events().length }}</strong> public events</span
+    ><span
+      ><strong>{{ organisations().length }}</strong> community partners</span
+    ><span><strong>100%</strong> fictional assessment data</span>
+  </div>
+</section>
+<section class="page-band" id="events">
+  <div class="container">
+    <div class="section-top">
+      <div class="page-heading">
+        <p class="eyebrow">Events for every kind of supporter</p>
+        <h2>Find your way to make a difference</h2>
+        <p>
+          From fun runs to concerts, every registration helps a community programme reach its
+          fundraising goal.
+        </p>
+      </div>
+      <a routerLink="/search" class="text-link">Search all events →</a>
+    </div>
+    @if (loading()) {
+      <p class="loading" role="status">Loading events...</p>
+    }
+    @if (error()) {
+      <p class="notice error" role="alert">{{ error() }}</p>
+    }
+    @if (!loading() && !error()) {
+      <div class="card-grid">
+        @for (event of events(); track event.id) {
+          <app-event-card [event]="event" />
+        }
+      </div>
+    }
+  </div>
+</section>
+<section class="page-band soft">
+  <div class="container">
+    <div class="page-heading">
+      <p class="eyebrow">Our charity partners</p>
+      <h2>Local organisations, clear missions</h2>
+      <p>Each fictional organisation has a defined mission and direct contact information.</p>
+    </div>
+    <div class="organisation-grid">
+      @for (organisation of organisations(); track organisation.id) {
+        <article>
+          <span class="org-number">0{{ $index + 1 }}</span>
+          <h3>{{ organisation.name }}</h3>
+          <p>{{ organisation.mission }}</p>
+          <a [href]="'mailto:' + organisation.email">{{ organisation.email }}</a>
+          <a [href]="'tel:' + organisation.phone">{{ organisation.phone }}</a>
+        </article>
+      }
+    </div>
+  </div>
+</section>

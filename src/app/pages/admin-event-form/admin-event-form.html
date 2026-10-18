@@ -1,0 +1,300 @@
+<section class="admin-head">
+  <div class="container">
+    <a routerLink="/admin/events"><app-icon name="arrow-left" />All events</a>
+    <p class="eyebrow">Administration</p>
+    <h1>{{ editing ? 'Edit event' : 'Create event' }}</h1>
+    <p>
+      {{
+        editing
+          ? 'Update event information and review its complete registration list.'
+          : 'Add a new charity event to the public platform.'
+      }}
+    </p>
+  </div>
+</section>
+<section class="page-band soft">
+  <div class="container">
+    @if (loading()) {
+      <p class="loading">Loading event form...</p>
+    }
+    @if (!loading() && !ready()) {
+      <div class="notice error" role="alert">
+        <p>{{ error() }}</p>
+        <a routerLink="/admin/events">Return to all events</a>
+      </div>
+    }
+    @if (ready()) {
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-section">
+          <div>
+            <p class="eyebrow">Core information</p>
+            <h2>Event details</h2>
+          </div>
+          <div class="form-grid">
+            <div class="field full">
+              <label for="event-name">Event name</label
+              ><input
+                id="event-name"
+                formControlName="name"
+                [attr.aria-invalid]="invalid('name')"
+              />
+              @if (invalid('name')) {
+                <p class="validation">Enter 4 to 180 characters.</p>
+              }
+            </div>
+            <div class="field">
+              <label for="organisation">Organisation</label
+              ><select
+                id="organisation"
+                formControlName="organisation_id"
+                [attr.aria-invalid]="invalid('organisation_id')"
+              >
+                <option [ngValue]="0">Select organisation</option>
+                @for (item of organisations(); track item.id) {
+                  <option [ngValue]="item.id">{{ item.name }}</option>
+                }
+              </select>
+              @if (invalid('organisation_id')) {
+                <p class="validation">Select an organisation.</p>
+              }
+            </div>
+            <div class="field">
+              <label for="category">Category</label
+              ><select
+                id="category"
+                formControlName="category_id"
+                [attr.aria-invalid]="invalid('category_id')"
+              >
+                <option [ngValue]="0">Select category</option>
+                @for (item of categories(); track item.id) {
+                  <option [ngValue]="item.id">{{ item.name }}</option>
+                }
+              </select>
+              @if (invalid('category_id')) {
+                <p class="validation">Select a category.</p>
+              }
+            </div>
+            <div class="field full">
+              <label for="description">Full description</label
+              ><textarea
+                id="description"
+                formControlName="description"
+                [attr.aria-invalid]="invalid('description')"
+              ></textarea>
+              @if (invalid('description')) {
+                <p class="validation">Enter at least 20 characters.</p>
+              }
+            </div>
+            <div class="field full">
+              <label for="purpose">Charitable purpose</label
+              ><input
+                id="purpose"
+                formControlName="purpose"
+                [attr.aria-invalid]="invalid('purpose')"
+              />
+              @if (invalid('purpose')) {
+                <p class="validation">Enter 10 to 255 characters.</p>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div>
+            <p class="eyebrow">Schedule and place</p>
+            <h2>Event logistics</h2>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="datetime">Venue date and time</label
+              ><app-date-input
+                inputId="datetime"
+                [withTime]="true"
+                formControlName="event_datetime"
+                [invalid]="invalid('event_datetime')"
+              />
+              @if (invalid('event_datetime')) {
+                <p class="validation">Enter a valid date (YYYY-MM-DD) and 24-hour time (HH:mm).</p>
+              }
+            </div>
+            <div class="field">
+              <label for="timezone">Venue timezone</label>
+              <select
+                id="timezone"
+                formControlName="event_timezone"
+                [attr.aria-invalid]="invalid('event_timezone')"
+              >
+                @for (zone of timezones; track zone) {
+                  <option [value]="zone">{{ zone }}</option>
+                }
+              </select>
+              @if (invalid('event_timezone')) {
+                <p class="validation">Select the venue timezone.</p>
+              }
+            </div>
+            <div class="field">
+              <label for="location">Location</label
+              ><input
+                id="location"
+                formControlName="location"
+                [attr.aria-invalid]="invalid('location')"
+              />
+              @if (invalid('location')) {
+                <p class="validation">Enter 4 to 180 characters.</p>
+              }
+            </div>
+            <div class="field">
+              <label for="latitude">Latitude</label
+              ><input
+                id="latitude"
+                type="number"
+                step="0.000001"
+                formControlName="latitude"
+                [attr.aria-invalid]="invalid('latitude')"
+              />
+              <p class="hint">Used for the Open-Meteo forecast.</p>
+              @if (invalid('latitude')) {
+                <p class="validation">Enter a latitude from -90 to 90.</p>
+              }
+            </div>
+            <div class="field">
+              <label for="longitude">Longitude</label
+              ><input
+                id="longitude"
+                type="number"
+                step="0.000001"
+                formControlName="longitude"
+                [attr.aria-invalid]="invalid('longitude')"
+              />
+              @if (invalid('longitude')) {
+                <p class="validation">Enter a longitude from -180 to 180.</p>
+              }
+            </div>
+            <div class="field full">
+              <label for="image">Image path</label
+              ><input
+                id="image"
+                formControlName="image_path"
+                [attr.aria-invalid]="invalid('image_path')"
+              />
+              <p class="hint">
+                Use a file in public/assets, for example assets/event-green-notes-concert.png.
+              </p>
+              @if (invalid('image_path')) {
+                <p class="validation">Enter a valid assets image path.</p>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div>
+            <p class="eyebrow">Fundraising</p>
+            <h2>Donation settings</h2>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="price">Ticket contribution (AUD)</label
+              ><input
+                id="price"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="ticket_price"
+                [attr.aria-invalid]="invalid('ticket_price')"
+              />
+              @if (invalid('ticket_price')) {
+                <p class="validation">Enter an amount from 0 to 99,999,999.99.</p>
+              }
+            </div>
+            <div class="field">
+              <label for="goal">Charity goal (AUD)</label
+              ><input
+                id="goal"
+                type="number"
+                min="0.01"
+                step="0.01"
+                formControlName="charity_goal"
+                [attr.aria-invalid]="invalid('charity_goal')"
+              />
+              @if (invalid('charity_goal')) {
+                <p class="validation">Enter a goal greater than zero.</p>
+              }
+            </div>
+            <div class="field">
+              <label for="progress">Starting progress (AUD)</label
+              ><input
+                id="progress"
+                type="number"
+                min="0"
+                step="0.01"
+                formControlName="current_progress"
+                [attr.aria-invalid]="invalid('current_progress')"
+              />
+              @if (invalid('current_progress')) {
+                <p class="validation">Enter an amount of zero or more.</p>
+              }
+            </div>
+            <div class="field">
+              <span class="field-label">Visibility</span
+              ><label class="checkbox-field"
+                ><input type="checkbox" formControlName="is_suspended" /> Suspend this event</label
+              >
+            </div>
+          </div>
+        </div>
+        @if (error()) {
+          <p class="notice error" role="alert">{{ error() }}</p>
+        }
+        <div class="actions">
+          <button class="button green" type="submit" [disabled]="saving()">
+            <app-icon [name]="editing ? 'save' : 'plus'" />{{
+              saving() ? 'Saving...' : editing ? 'Save changes' : 'Create event'
+            }}</button
+          ><a class="button secondary" routerLink="/admin/events">Cancel</a>
+        </div>
+      </form>
+    }
+  </div>
+</section>
+@if (editing && ready()) {
+  <section class="page-band">
+    <div class="container">
+      <div class="page-heading">
+        <p class="eyebrow">Related records</p>
+        <h2>Event registrations</h2>
+        <p>Administrative view includes contact details. Records are ordered newest first.</p>
+      </div>
+      @if (registrations().length) {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Registrant</th>
+                <th>Contact</th>
+                <th>Tickets</th>
+                <th>Contribution</th>
+                <th>Registered</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of registrations(); track item.id) {
+                <tr>
+                  <td>
+                    <strong>{{ item.first_name }} {{ item.last_name }}</strong>
+                  </td>
+                  <td>
+                    {{ item.email }}<small>{{ item.phone }}</small>
+                  </td>
+                  <td>{{ item.ticket_count }}</td>
+                  <td>{{ item.ticket_count * item.unit_price | currency: 'AUD' }}</td>
+                  <td>{{ item.registered_at | date: 'd MMM y, h:mm a' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="notice">No registrations have been recorded for this event.</p>
+      }
+    </div>
+  </section>
+}

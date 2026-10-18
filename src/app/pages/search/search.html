@@ -1,0 +1,80 @@
+<section class="search-intro">
+  <div class="container">
+    <div class="page-heading">
+      <p class="eyebrow">Explore HopeBridge</p>
+      <h1>Search charity events</h1>
+      <p>
+        Filter by any combination of date, location and category. Leave fields blank to browse every
+        public event.
+      </p>
+    </div>
+    <form [formGroup]="form" (ngSubmit)="search()" class="search-form">
+      <div class="field">
+        <label for="search-date">Event date</label
+        ><app-date-input
+          inputId="search-date"
+          formControlName="date"
+          [invalid]="form.controls.date.invalid && form.controls.date.touched"
+        />
+      </div>
+      <div class="field">
+        <label for="search-location">Location</label
+        ><input
+          id="search-location"
+          type="search"
+          formControlName="location"
+          placeholder="e.g. Brisbane"
+        />
+      </div>
+      <div class="field">
+        <label for="search-category">Category</label
+        ><select id="search-category" formControlName="category">
+          <option value="">All categories</option>
+          @for (category of categories(); track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </div>
+      <button class="button" type="submit" [disabled]="loading()">
+        <app-icon name="search" />Search events</button
+      ><button class="button secondary" type="button" (click)="clear()">
+        <app-icon name="reset" />Clear filters
+      </button>
+    </form>
+  </div>
+</section>
+<section class="page-band">
+  <div class="container">
+    <div class="results-heading">
+      <h2>Search results</h2>
+      @if (searched() && !loading()) {
+        <span>{{ results().length }} event{{ results().length === 1 ? '' : 's' }}</span>
+      }
+    </div>
+    @if (loading()) {
+      <p class="loading" role="status">Searching events...</p>
+    }
+    @if (error()) {
+      <p class="notice error" role="alert">{{ error() }}</p>
+    }
+    @if (searched() && !loading() && !error() && results().length === 0) {
+      <div class="empty">
+        <h3>No matching events</h3>
+        <p>Try a different date, broader location or another category.</p>
+      </div>
+    }
+    @if (!searched() && !error()) {
+      <div class="empty">
+        <h3>Choose your filters</h3>
+        <p>Your matching charity events will appear here.</p>
+      </div>
+    }
+    @if (!loading() && results().length) {
+      <div class="card-grid">
+        @for (event of results(); track event.id) {
+          <app-event-card [event]="event" />
+        }
+      </div>
+    }
+  </div>
+</section>

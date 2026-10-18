@@ -1,0 +1,132 @@
+<div class="date-fields" [class.with-time]="withTime" lang="en-AU">
+  <div class="date-entry">
+    <input
+      #dateField
+      [id]="inputId"
+      type="text"
+      inputmode="numeric"
+      placeholder="YYYY-MM-DD"
+      maxlength="10"
+      autocomplete="off"
+      [value]="dateValue"
+      [disabled]="disabled"
+      [attr.aria-invalid]="invalid"
+      (input)="changeDate(dateField.value)"
+      (blur)="touch()"
+    />
+    <button
+      class="calendar-trigger"
+      type="button"
+      title="Choose date"
+      aria-label="Choose date"
+      aria-haspopup="dialog"
+      [disabled]="disabled"
+      (click)="openCalendar()"
+    >
+      <app-icon name="calendar" />
+    </button>
+  </div>
+  @if (withTime) {
+    <div class="time-entry">
+      <label [for]="inputId + '-time'">Time (24-hour)</label>
+      <input
+        #timeField
+        [id]="inputId + '-time'"
+        type="text"
+        inputmode="numeric"
+        placeholder="HH:mm"
+        maxlength="5"
+        autocomplete="off"
+        [value]="timeValue"
+        [disabled]="disabled"
+        [attr.aria-invalid]="invalid"
+        (input)="changeTime(timeField.value)"
+        (blur)="touch()"
+      />
+    </div>
+  }
+</div>
+<dialog
+  #calendar
+  class="calendar"
+  lang="en-AU"
+  [attr.aria-labelledby]="inputId + '-calendar-title'"
+  (cancel)="touch()"
+>
+  <header>
+    <h2 [id]="inputId + '-calendar-title'">Choose date</h2>
+    <button
+      class="calendar-icon"
+      type="button"
+      title="Close calendar"
+      aria-label="Close calendar"
+      (click)="closeCalendar()"
+    >
+      <app-icon name="close" />
+    </button>
+  </header>
+  <div class="month-navigation">
+    <button
+      class="calendar-icon"
+      type="button"
+      title="Previous month"
+      aria-label="Previous month"
+      [disabled]="year === 1000 && month === 0"
+      (click)="moveMonth(-1)"
+    >
+      <app-icon name="arrow-left" />
+    </button>
+    <select #monthField aria-label="Month" [value]="month" (change)="month = +monthField.value">
+      @for (name of months; track name; let i = $index) {
+        <option [value]="i" [selected]="i === month">{{ name }}</option>
+      }
+    </select>
+    <input
+      #yearField
+      type="text"
+      inputmode="numeric"
+      maxlength="4"
+      aria-label="Year"
+      [value]="year"
+      (input)="changeYear(yearField.value)"
+      (blur)="yearField.value = '' + year"
+    />
+    <button
+      class="calendar-icon"
+      type="button"
+      title="Next month"
+      aria-label="Next month"
+      [disabled]="year === 9999 && month === 11"
+      (click)="moveMonth(1)"
+    >
+      <app-icon name="arrow-right" />
+    </button>
+  </div>
+  <p class="month-heading" aria-live="polite">{{ months[month] }} {{ year }}</p>
+  <div class="calendar-grid">
+    @for (weekday of weekdays; track weekday) {
+      <span class="weekday">{{ weekday }}</span>
+    }
+    @for (day of days(); track $index) {
+      @if (day) {
+        <button
+          type="button"
+          class="day"
+          [class.selected]="dateValue === isoDate(day)"
+          [attr.aria-label]="dayLabel(day)"
+          [attr.aria-pressed]="dateValue === isoDate(day)"
+          (click)="selectDay(day)"
+        >
+          {{ day }}
+        </button>
+      } @else {
+        <span></span>
+      }
+    }
+  </div>
+  <footer>
+    <button class="calendar-action" type="button" (click)="clear()">Clear</button>
+    <button class="calendar-action" type="button" (click)="today()">Today</button>
+    <button class="calendar-action" type="button" (click)="closeCalendar()">Close</button>
+  </footer>
+</dialog>

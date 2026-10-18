@@ -1,0 +1,132 @@
+.register-page {
+  padding: 52px 0 72px;
+  background: var(--surface);
+}
+.register-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.75fr);
+  gap: 50px;
+  align-items: start;
+}
+.back-link {
+  display: inline-block;
+  margin-bottom: 26px;
+  color: var(--green-dark);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+form {
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+.notice {
+  margin: 18px 0;
+}
+.submit {
+  margin-top: 22px;
+}
+aside {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+aside img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  object-fit: cover;
+}
+aside > div {
+  padding: 22px;
+}
+aside h2 {
+  margin: 0 0 18px;
+  font: 750 23px var(--font-display);
+}
+aside dl {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+aside dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 11px;
+  border-bottom: 1px solid var(--line);
+}
+aside dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+aside dd {
+  margin: 0;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+}
+.total {
+  padding-top: 4px;
+}
+.confirmation {
+  max-width: 680px;
+  margin: 20px auto;
+  padding: 44px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: var(--shadow);
+}
+.confirmation > span {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 30px;
+}
+.confirmation h1 {
+  margin: 0;
+  font: 750 46px var(--font-display);
+}
+.confirmation > p:not(.eyebrow) {
+  color: var(--muted);
+}
+.confirmation dl {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 28px 0;
+}
+.confirmation dt {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.confirmation dd {
+  margin: 3px 0;
+  font-weight: 750;
+}
+@media (max-width: 800px) {
+  .register-grid {
+    grid-template-columns: 1fr;
+  }
+  aside {
+    grid-row: 1;
+  }
+  .confirmation {
+    padding: 28px 20px;
+  }
+  .confirmation dl {
+    display: grid;
+    gap: 15px;
+  }
+}

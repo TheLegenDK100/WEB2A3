@@ -1,94 +1,126 @@
 # HopeBridge Charity Events
 
-HopeBridge is a full-stack charity event platform developed for PROG2002 Assignment 3. Visitors can discover public events, search by multiple criteria, view live weather forecasts, and register their interest. Administrators can manage all event records and review registration details.
+A full-stack charity event platform built with Angular, Express and MySQL. HopeBridge connects event discovery and registration with an administrative workspace for managing events and reviewing participation.
 
-All organisations, events, registrations, contact details and fundraising figures in this project are fictional assessment data.
+[Live demo](https://24833183.it.scu.edu.au/) · [Search events](https://24833183.it.scu.edu.au/search) · [Administration](https://24833183.it.scu.edu.au/admin/events)
 
-## Repository status
+Developed for **PROG2002 Web Development II, Assessment 3**. All event records, organisations, contacts and fundraising figures are fictional. Ticket registration records a pledge; the application does not collect payments.
 
-The existing A3 application was imported from the supplied project archive on 18 October 2026. The import commit records a source snapshot; it does not reconstruct the project's earlier development history. Subsequent commits should describe the actual files changed and the checks performed.
+## Contents
 
-This repository contains the visitor application, administration application and API in one project. The two website interfaces use separate Angular routes and share the same Express API. No online payment processing is implemented.
+- [Features](#features)
+- [Architecture](#architecture)
+- [Getting started](#getting-started)
+- [Database](#database)
+- [API reference](#api-reference)
+- [Development and testing](#development-and-testing)
+- [Deployment](#deployment)
+- [Limitations and security](#limitations-and-security)
+- [Project context](#project-context)
 
-## Project structure
+## Features
 
-```text
-src/app/pages/          Visitor and administration page components
-src/app/core/           API client, models, navigation and shared helpers
-src/app/shared/         Date input, event cards, icons and weather component
-public/assets/         Event images and other public assets
-server/controllers/    Event queries, registration transactions and event CRUD
-server/routes/         Express endpoint definitions
-server/event_db.js     MySQL connection pool and connection check
-server/validation.js   Server-side input validation
-server/event-time.js   Venue-time conversion utilities
-server/tests/          Validation and isolated database/API tests
-database/              Complete SQL exports and migration scripts
-app.js                 Production startup entry point
+### Visitor experience
+
+- Browse public events and filter by date, location and category.
+- View event details, charity information, fundraising totals and recent registrations.
+- Register for an upcoming event, choose 1–10 tickets and receive a confirmation number.
+- Check event-day weather from Open-Meteo for dates from today through 15 days ahead.
+- Use responsive pages with loading, empty, validation and error states.
+
+### Event administration
+
+- View all events, including upcoming, past and suspended records.
+- Create and update events, including their venue timezone, coordinates and ticket price.
+- Review registration contacts, ticket quantities and contributions.
+- Delete events that have no registrations; existing registrations block deletion.
+
+### Data handling
+
+- Parameterised SQL queries and a shared MySQL connection pool.
+- One registration per email address per event, enforced by a unique database constraint.
+- Registration transactions lock the event row and capture the ticket price at registration time.
+- Venue timezone conversion for determining whether registration has closed.
+- Public registration responses omit email and phone fields. Administrative endpoints return full contact details; see [security limitations](#limitations-and-security).
+
+## Architecture
+
+The visitor and administrative interfaces share one Angular application. Express provides the REST API and serves the compiled application in production. The weather component requests forecasts directly from Open-Meteo.
+
+```mermaid
+flowchart LR
+    V[Visitor pages] --> A[Shared Angular API service]
+    M[Administration pages] --> A
+    A --> E[Express REST API]
+    E --> D[(MySQL)]
+    W[Angular weather component] --> O[Open-Meteo API]
 ```
 
-Generated builds, installed dependencies, database backups and local credentials are not source deliverables. Build the application before attempting to serve its production pages.
-
-## Technology
-
-- Angular 22, TypeScript 6, RxJS and Angular Reactive Forms
-- Custom HTML and CSS with Lucide icons; no CSS framework or Angular UI framework
-- Node.js 24 and Express 4 REST API
-- MySQL 8 with `mysql2` connection pooling
-- Open-Meteo forecast API for event-day weather
-
-This project uses modern Angular, not AngularJS 1.x. Any assessment bonus that specifically requires AngularJS must be confirmed with the lecturer.
-
-## Main features
-
-- Responsive home, search, details and registration pages
-- Search by date, partial location and database-provided category
-- English-only calendar and 24-hour time controls, independent of the browser's language
-- Public API always excludes suspended events
-- Upcoming and past status uses each venue's Australian timezone
-- Real registration creation with validation, duplicate protection and confirmation number
-- Public registration responses omit email and phone details; unauthenticated administration endpoints still expose those fields
-- Administrative event list includes upcoming, past and suspended records
-- Administrative create, edit and delete workflows
-- Registered events cannot be deleted at either the interface or database/API level
-- Fundraising totals combine recorded progress with registration ticket pledges
-- Loading, empty, success, validation and server error states
-
-## Database setup
-
-The complete schema contains four categories, three organisations, ten events and twelve registrations. Two events are suspended and are available only in the administrative interface.
-
-For a new local MySQL installation, import:
+| Layer | Technology |
+| --- | --- |
+| Frontend | Angular 22, TypeScript 6, RxJS, Reactive Forms |
+| Styling | Custom CSS and Lucide icons |
+| API | Node.js, Express 4, `mysql2` |
+| Database | MySQL; MySQL 8 recommended for local development |
+| Weather | Open-Meteo forecast API |
+| Tests | Angular unit tests and Node.js test runner |
 
 ```text
-database/charityevents_a3.sql
+src/app/
+  pages/                 Visitor and administration pages
+  core/                  API service, models, navigation and helpers
+  shared/                Date input, event cards, icons and weather
+public/assets/           Images and other public assets
+server/
+  controllers/           Queries, registration transactions and event CRUD
+  routes/                REST endpoint definitions
+  event_db.js            MySQL connection pool
+  event-time.js          Venue-time conversion
+  validation.js          Server-side input validation
+  tests/                 Validation and database/API tests
+database/                Schema, seed data and migration scripts
+app.js                   Production startup entry point
 ```
 
-This file recreates `charityevents_db`, its constraints and all fictional seed data. It drops the four project tables before rebuilding them, so do not run it over data that must be retained.
+## Getting started
 
-For an existing A2 database, use the one-time migration instead:
+### Prerequisites
 
-```text
-database/upgrade_from_a2.sql
+- Node.js **24.15.0 or later within 24.x**, with npm. The root manifest records npm 11.17.0.
+- A running MySQL server, preferably MySQL 8 for local development.
+- Git and a database client such as MySQL Workbench or the MySQL CLI.
+
+Run the following commands from the repository root unless stated otherwise.
+
+### 1. Install dependencies
+
+```bash
+git clone https://github.com/TheLegenDK100/WEB2A3.git
+cd WEB2A3
+npm ci
 ```
 
-For cPanel/phpMyAdmin, first select the database assigned by cPanel and then import:
+### 2. Initialise the database
 
-```text
-database/cpanel_first_install.sql
+Open `database/charityevents_a3.sql` in your database client and execute it against your local MySQL server. It creates or selects `charityevents_db`, then recreates the four project tables and loads fictional seed data.
+
+> **Existing data:** this script drops the project tables. Use a disposable local database or back up existing records before importing. Alternative installation and migration scripts are described under [Database](#database).
+
+### 3. Configure the environment
+
+Copy `.env.example` to `.env` and replace the example values with your local database settings.
+
+PowerShell:
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-This fresh-install script does not attempt to create or select a database, which avoids shared-host permission errors. Use it with a new, empty database. `database/cpanel_import.sql` is a separate reset script that drops and recreates the project tables; use it only when intentionally replacing their contents. The upgrade scripts are migrations for the stated earlier schema, not general-purpose reset scripts.
+macOS / Linux:
 
-## Environment setup
-
-1. Install Node.js 24 and MySQL 8.
-2. Run `npm ci` in this directory.
-3. Copy `.env.example` to `.env`.
-4. Enter the MySQL host, port, username, password and database name in `.env`.
-5. Never commit or submit the real `.env` file.
-
-Example variable names:
+```bash
+cp .env.example .env
+```
 
 ```dotenv
 DB_HOST=localhost
@@ -99,135 +131,137 @@ DB_NAME=charityevents_db
 PORT=3070
 ```
 
-## Local development
+Keep `.env` local. Use separate credentials for development and hosting.
 
-Start the API in the first terminal:
+### 4. Start the application
+
+Start the API in one terminal:
 
 ```bash
 npm run start:api
 ```
 
-Start Angular in a second terminal:
+Start the frontend in a second terminal:
 
 ```bash
 npm start
 ```
 
-Open `http://localhost:4200/`. The Angular development proxy sends `/api` requests to `http://127.0.0.1:3070`.
+Open [http://localhost:4200](http://localhost:4200). The Angular development proxy forwards `/api` requests to `http://127.0.0.1:3070`. If you change the API port, update `proxy.conf.json` to match.
 
-Visitor pages:
+The API checks its database connection before listening. Check a running server at [http://localhost:3070/api/health](http://localhost:3070/api/health). A healthy response contains `"status": "ok"` and `"database": "connected"`.
 
-- `/` home and public event list
-- `/search` multi-criteria search
-- `/events/:id` event details, fundraising, forecast and registrations
-- `/register?event_id=:id` registration form
+## Database
 
-Administration pages:
+The seed dataset contains **3 organisations, 4 categories, 10 events and 12 registrations**. Two events are suspended and excluded from the public API.
 
-- `/admin/events` event management list
-- `/admin/events/new` create event
-- `/admin/events/:id/edit` edit event and review registrations
+| Script | Purpose |
+| --- | --- |
+| `database/charityevents_a3.sql` | Complete local schema and seed data; resets the project tables. |
+| `database/cpanel_first_install.sql` | First installation into an empty database selected in phpMyAdmin; does not create or select a database. |
+| `database/cpanel_import.sql` | Reset and reseed the project tables in the selected cPanel database. |
+| `database/upgrade_from_a2.sql` | One-time migration from the expected A2 schema. |
+| `database/upgrade_event_timezones.sql` | Add timezone support to an older A3 schema that does not yet have the column. |
 
-Authentication is outside the assessment scope, so the administrative pages intentionally do not implement login security.
+Choose the script for your current schema; do not run all scripts in sequence. Both the full A3 schema and the A2 migration already include the timezone column.
 
-## REST API
+`charity_events` references an organisation and a category. `event_registrations` references an event with `ON DELETE RESTRICT`, and `UNIQUE (event_id, email)` prevents duplicate registrations for the same email and event. Monetary columns use `DECIMAL`; each registration stores its own ticket-price snapshot. Fundraising totals combine recorded progress with ticket quantities multiplied by those stored prices.
 
-| Method | Endpoint                | Purpose                                                  |
-| ------ | ----------------------- | -------------------------------------------------------- |
-| GET    | `/api/health`           | Service health response                                  |
-| GET    | `/api/events`           | Public, non-suspended events                             |
-| GET    | `/api/events/search`    | Public events filtered by date, location and/or category |
-| GET    | `/api/events/:id`       | One public event and privacy-safe registrations          |
-| GET    | `/api/categories`       | Event categories                                         |
-| GET    | `/api/organisations`    | Charity organisations                                    |
-| POST   | `/api/registrations`    | Create one event registration                            |
-| GET    | `/api/admin/events`     | All events including past and suspended records          |
-| GET    | `/api/admin/events/:id` | Event and complete registration contacts                 |
-| POST   | `/api/admin/events`     | Create an event                                          |
-| PUT    | `/api/admin/events/:id` | Update an event                                          |
-| DELETE | `/api/admin/events/:id` | Delete an event with no registrations                    |
+Event dates are stored as venue-local `DATETIME` values alongside an IANA timezone. New registrations are timestamped in UTC. The API exposes a UTC event instant for status checks and returns registration lists newest first.
 
-Example search:
+## API reference
 
-```text
-GET /api/events/search?location=Brisbane&category=2&date=2026-10-24
+All endpoints are relative to the application origin and use the `/api` prefix. POST and PUT requests accept JSON with `Content-Type: application/json`.
+
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/api/health` | Check API and database availability. |
+| GET | `/api/events` | List public, non-suspended events. |
+| GET | `/api/events/search` | Filter public events by `date`, `location` and/or `category`. |
+| GET | `/api/events/:id` | Retrieve an event and its public registration list. |
+| GET | `/api/categories` | List event categories. |
+| GET | `/api/organisations` | List charitable organisations. |
+| POST | `/api/registrations` | Register an email address for an event. |
+| GET | `/api/admin/events` | List all events, including suspended records. |
+| GET | `/api/admin/events/:id` | Retrieve an event and complete registration contacts. |
+| POST | `/api/admin/events` | Create an event. |
+| PUT | `/api/admin/events/:id` | Update an event. |
+| DELETE | `/api/admin/events/:id` | Delete an event with no registrations. |
+
+Example filtered request:
+
+```http
+GET /api/events/search?date=2026-10-24&location=Brisbane&category=2
 ```
 
-## Verification
+Successful creation returns `201`. Handled errors use a JSON `error` field, with `400` for invalid input, `404` for unavailable resources and `409` for conflicts such as duplicate registration or deletion of an event with registrations. Database request failures return `500`; a failed database health check returns `503`. See [known limitations](#limitations-and-security) for current validation gaps.
 
-During the source review on 18 October 2026, the three existing standalone backend validation tests passed:
+## Development and testing
 
-```bash
-node --test server/tests/validation.test.js
-```
+| Command | Purpose |
+| --- | --- |
+| `npm start` | Start the Angular development server with the API proxy. |
+| `npm run start:api` | Start the Express API; also serves an existing frontend build. |
+| `npm run dev` | Alias for starting the API only; does not start Angular. |
+| `npm run build` | Create the production frontend build. |
+| `npm run watch` | Rebuild the frontend in development mode when files change. |
+| `npm test -- --watch=false` | Run Angular unit tests once. |
+| `node --test server/tests/validation.test.js` | Run standalone backend validation tests without MySQL. |
+| `npm run test:api` | Run backend validation tests and the database/API integration suite. |
 
-Read-only checks of the hosted application confirmed a connected database, eight public events, ten administrative events and twelve registrations. Combined date/location/category search, suspended-event filtering and event-detail weather display were also checked. These observations are a dated snapshot, not a guarantee of ongoing availability.
+The integration suite creates and drops a temporary database using the configured MySQL account. Run it locally with the required database-creation permissions, not with a restricted hosting account.
 
-The full database/API suite and Angular build/component suite were not rerun as part of this repository import. The test commands below are available for a properly configured development environment. The current tests do not cover every known issue listed later in this document.
+The registration integration test uses a seeded event scheduled for **24 October 2026 at 19:00, Australia/Brisbane**. Its successful-registration expectation becomes invalid after that time; move the test fixture into the future before relying on later runs.
 
-Run the Angular component tests:
+### Recorded verification
 
-```bash
-npm test -- --watch=false
-```
+During review on **18 October 2026**, the three standalone backend validation tests passed. Read-only checks of the hosted application confirmed database connectivity, the expected event and registration counts, combined search, suspended-event filtering and event-detail weather rendering.
 
-Run the isolated API and database tests:
+The full database/API suite, Angular tests and production build were not rerun during the repository import. These observations describe that review date; they are not a current CI result or a claim that every edge case is covered.
 
-```bash
-npm run test:api
-```
+## Deployment
 
-The API test creates and removes its own temporary database. The MySQL test account therefore requires `CREATE DATABASE` and `DROP DATABASE` permissions. Do not run that test command with a restricted cPanel database account.
-
-Build the optimised Angular application:
+### Local production preview
 
 ```bash
 npm run build
+node app.js
 ```
 
-## Production and cPanel deployment
+Open [http://localhost:3070](http://localhost:3070). Express serves `dist/hopebridge-a3/browser` and the API from the same origin, with fallback routing for Angular pages. The generated `dist/` directory is excluded from Git.
 
-1. Build Angular locally with Node.js 24 using `npm ci` and `npm run build`.
-2. Create a separate database in cPanel. For a fresh installation, select that database in phpMyAdmin and import `database/cpanel_first_install.sql`. The alternative `cpanel_import.sql` resets its tables and must only be used when intentionally replacing existing data.
-3. Create a dedicated database user and grant only SELECT, INSERT, UPDATE and DELETE on that database. Configure its credentials in a private `.env` in the deployed application root, outside `public_html`, or in the Node.js environment settings.
-4. Upload the application, including `dist/hopebridge-a3/browser`, without local `.env`, `node_modules`, `.angular` or database backups.
-5. On the deployed copy only, replace root `package.json` and `package-lock.json` with the versions from `server/`. These contain backend dependencies compatible with the SCU Node.js 18 runtime. Keep the original Angular root manifests in the local source project.
-6. Create a Production Node.js application with root `hopebridge-a3`, startup file `app.js`, and the assigned domain root. Run NPM Install in cPanel. A subdirectory URL requires matching Angular base href and API base configuration before building.
-7. Restart the application and verify `/api/health`, `/api/events`, visitor pages and administration pages, including direct navigation and refresh.
+### SCU cPanel
 
-After `npm run build`, Express serves the Angular browser build and the REST API from the same port. This avoids CORS and hard-coded host problems in production.
+1. Build locally with Node.js 24.15.0 or later within 24.x using `npm ci` and `npm run build`.
+2. Create a database in cPanel. Select it in phpMyAdmin and import `database/cpanel_first_install.sql` for an empty installation.
+3. Create a dedicated application database user with SELECT, INSERT, UPDATE and DELETE permissions. Configure credentials privately in the deployed application root or cPanel environment settings.
+4. Upload `app.js`, `server/` and `dist/hopebridge-a3/browser`. Exclude local credentials, dependencies, caches and database backups.
+5. In the **deployment copy only**, place `server/package.json` and `server/package-lock.json` at the application root as `package.json` and `package-lock.json`. This backend-only dependency set supports Node.js 18 and later; keep the Angular manifests in the source checkout.
+6. Configure a production Node.js application with startup file `app.js`, run NPM Install and restart it.
+7. Verify `/api/health`, public pages, registration and administrative workflows. Also test direct navigation and refresh on nested routes.
 
-The supplied deployment archive includes prebuilt Angular files; this source repository excludes `dist/`. Angular is built locally, and the hosted Node.js process runs Express and serves those files. The supplied deployment notes report Node.js 18.20.8 and MySQL 5.7.44; the hosting control-panel settings were not independently rechecked during this import. `/api/health` returns HTTP 200 only when a live MySQL query succeeds, and HTTP 503 when the database is unavailable.
+The current application assumes deployment at the domain root. A subdirectory deployment requires changes to the Angular base URL and API configuration.
 
-Hosted website: https://24833183.it.scu.edu.au/
+The supplied hosting notes report Node.js 18.20.8 and MySQL 5.7.44; those control-panel settings were not independently rechecked during the import. MySQL 5.7 does not enforce `CHECK` constraints, so server-side validation remains necessary alongside foreign keys, unique keys and `NOT NULL` constraints.
 
-MySQL 5.7 does not enforce CHECK constraints. Foreign keys, NOT NULL, unique keys and server-side validation provide the applicable hosted integrity protections. The supplied deployment notes describe a restricted application account; verify actual grants in your own hosting account.
+## Limitations and security
 
-## Data design notes
+This is an assessment application using fictional data. Administrative routes and APIs have **no authentication**. Omitting contacts from public responses does not protect them from access through administrative endpoints. Add authentication and authorisation before using real participant data or operating the service publicly beyond the assessment scope.
 
-- `charity_events` references `charitable_organisations` and `event_categories` through foreign keys.
-- `event_registrations` references `charity_events` with `ON DELETE RESTRICT`.
-- `DATETIME` stores venue wall-clock times and registration timestamps; `event_timezone` preserves the venue timezone.
-- `DECIMAL` stores ticket prices and fundraising amounts without floating-point rounding.
-- `NOT NULL`, defaults, unique keys, check constraints and indexes enforce data integrity.
-- `UNIQUE (event_id, email)` allows one email address to register once for each event.
+The current snapshot has these known technical issues:
 
-## Known issues and follow-up work
+- **Date error handling:** some unsupported years can throw during conversion before the controller's error handler runs. Asynchronous route errors need consistent handling.
+- **Phone validation:** punctuation-only input can pass the current client and server patterns.
+- **Search validation:** date input with trailing content can pass the truncated timestamp check.
+- **Image validation:** path format is checked, but file existence is not; invalid selections can produce broken images.
+- **Weather mapping:** Open-Meteo codes 85 and 86 are currently labelled as thunderstorms instead of snow showers.
 
-The following issues were found during source review and remain unresolved in this imported snapshot:
+Local environment files are excluded from the current tracked source. An earlier commit contained `.env`; removing it from the latest revision does not erase history. Rotate any real credentials that were committed.
 
-- **Date error handling:** some out-of-range years cause `eventInstant()` to throw. Date validation runs outside the controller's `try/catch` in affected handlers, and Express 4 routes do not forward rejected promises automatically. Reject unsupported years and consistently handle asynchronous route errors.
-- **Phone validation:** punctuation-only values such as `--------` pass the current client and server patterns. Validate the number of digits as well as the permitted formatting characters.
-- **Search date format:** the timestamp helper truncates its input, allowing a malformed date such as `2026-10-24T12:00garbage` through the API validation. Validate the complete date parameter before conversion.
-- **Event images:** validation checks path syntax but not whether the image exists. A nonexistent `assets/*.png` path can pass validation and produce a broken image. Prefer a verified image list and a display fallback.
-- **Weather descriptions:** Open-Meteo codes 85 and 86 represent snow showers but currently map to thunderstorms. Use an explicit weather-code mapping.
+## Project context
 
-Authentication is intentionally omitted for this assessment. Public response redaction does not make registration contact information private while administration endpoints remain unauthenticated. Use fictional records only.
+This repository uses **modern Angular**, not AngularJS 1.x. Any assessment criterion specifically naming AngularJS requires clarification with the lecturer.
 
-## Submission and contribution evidence
+The existing application was imported on 18 October 2026. That commit records a source snapshot, not the original development timeline. Future commits should describe actual changes and their validation.
 
-- Each team member must deploy the application and API to their own SCU cPanel account. Only one hosted URL is currently documented here.
-- Supply the actual GitHub repository link and ensure the marker can access it. Commit messages should describe real changes; an imported snapshot does not replace evidence of earlier teamwork.
-- Provide each required demonstration video and peer evaluation through the assessment's designated channels. Their completion has not been verified in this repository review.
-- Follow the brief's final archive naming requirements and resolve its inconsistent archive count with the tutor. Exclude credentials, caches, installed dependencies and private configuration archives.
-- Keep `.env` local. It was removed from the tracked files during this import, but removing it from the current branch does not remove credentials from older commits. Any real credentials previously committed must be rotated.
+Each team member's cPanel deployment, demonstration video and confidential peer evaluation are separate assessment deliverables. Only one hosted URL is documented here; this README does not establish that the remaining submission evidence is complete.

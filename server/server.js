@@ -1,9 +1,12 @@
+/** @file Express application bootstrap and static Angular hosting entry point. */
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const apiRoutes = require('./routes/apiRoutes');
 const db = require('./event_db');
 
+/** @type {import('express').Express} */
 const app = express();
 const browserDirectory = path.join(__dirname, '..', 'dist', 'hopebridge-a3', 'browser');
 
@@ -35,6 +38,12 @@ app.use((error, _req, res, _next) => {
 });
 
 const port = Number(process.env.PORT || 3070);
+/**
+ * Test the database and start the HTTP server.
+ *
+ * @returns {Promise<import('http').Server|null>} The listening server, or null
+ * when startup is stopped by a database or port error.
+ */
 async function startServer() {
   try {
     await db.testConnection();

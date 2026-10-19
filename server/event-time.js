@@ -1,3 +1,6 @@
+/** @file Australian event-time validation and UTC conversion helpers. */
+
+/** @type {readonly string[]} Supported IANA time zones for Australian venues. */
 const EVENT_TIMEZONES = [
   'Australia/Brisbane',
   'Australia/Sydney',
@@ -9,6 +12,13 @@ const EVENT_TIMEZONES = [
 ];
 
 /** Convert an Australian venue's wall-clock DATETIME into an unambiguous UTC instant. */
+/**
+ * Convert a venue-local DATETIME to an unambiguous UTC ISO instant.
+ *
+ * @param {string} value A `YYYY-MM-DD HH:mm` or `YYYY-MM-DDTHH:mm` value.
+ * @param {string} timezone A supported Australian IANA time zone.
+ * @returns {string|null} The UTC ISO timestamp, or null for invalid/skipped times.
+ */
 function eventInstant(value, timezone) {
   const source = value.replace(' ', 'T').slice(0, 16);
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(source) || !EVENT_TIMEZONES.includes(timezone))
@@ -34,6 +44,12 @@ function eventInstant(value, timezone) {
   return localText(instant) === source ? new Date(instant).toISOString() : null;
 }
 
+/**
+ * Add the UTC instant used by the frontend for past/upcoming comparisons.
+ *
+ * @param {{event_datetime: string, event_timezone: string}} event Database event row.
+ * @returns {object} A copy of the event row with a `starts_at` property.
+ */
 function withEventInstant(event) {
   return { ...event, starts_at: eventInstant(event.event_datetime, event.event_timezone) };
 }

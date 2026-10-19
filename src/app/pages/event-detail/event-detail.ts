@@ -1,3 +1,5 @@
+/** @file Event-detail page driven by the route event identifier. */
+
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -22,6 +24,7 @@ export class EventDetail implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly api: ApiService,
   ) {}
+  /** Reload the selected event whenever the route parameter changes. */
   ngOnInit(): void {
     this.route.paramMap
       .pipe(
@@ -45,9 +48,11 @@ export class EventDetail implements OnInit {
       });
   }
   readonly isPast = isPastEvent;
+  /** Convert fundraising totals into a capped progress-bar percentage. */
   progress(event: CharityEvent): number {
     return Math.min(100, Math.round((event.total_progress / event.charity_goal) * 100));
   }
+  /** Expose only the privacy-safe registration projection to the template. */
   publicRegistrations(event: CharityEvent): PublicRegistration[] {
     return (event.registrations || []) as PublicRegistration[];
   }

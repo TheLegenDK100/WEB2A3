@@ -1,9 +1,15 @@
+/** @file Shared MySQL connection pool and connectivity check for the HopeBridge API. */
+
 const mysql = require('mysql2/promise');
 const path = require('path');
 
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-/** Shared MySQL connection pool used by every API controller. */
+/**
+ * Shared MySQL connection pool used by every API controller.
+ *
+ * @type {import('mysql2/promise').Pool}
+ */
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT || 3306),
@@ -17,6 +23,12 @@ const pool = mysql.createPool({
   decimalNumbers: true,
 });
 
+/**
+ * Verify that the configured database is reachable before the server starts.
+ *
+ * @returns {Promise<void>} Resolves after a successful ping.
+ * @throws {Error} Re-throws the MySQL connection error for the startup handler.
+ */
 async function testConnection() {
   let connection;
   try {

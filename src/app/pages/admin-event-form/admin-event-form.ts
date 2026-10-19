@@ -1,3 +1,5 @@
+/** @file Administration create/edit form for validated event records. */
+
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -70,6 +72,7 @@ export class AdminEventForm implements OnInit {
       longitude: [153.0251, [Validators.required, Validators.min(-180), Validators.max(180)]],
     });
   }
+  /** Load reference data and, when editing, patch the selected event into the form. */
   ngOnInit(): void {
     forkJoin({
       categories: this.api.getCategories(),
@@ -96,6 +99,7 @@ export class AdminEventForm implements OnInit {
       },
     });
   }
+  /** Validate the form and persist a new or updated event through the API. */
   save(): void {
     if (!this.ready() || this.saving()) return;
     if (this.form.invalid) {
@@ -126,6 +130,7 @@ export class AdminEventForm implements OnInit {
       },
     });
   }
+  /** Return full registration records for the selected admin event. */
   registrations(): AdminRegistration[] {
     return (this.event()?.registrations || []) as AdminRegistration[];
   }

@@ -1,3 +1,5 @@
+/** @file Home page orchestration for organisations and public event cards. */
+
 import { Component, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -13,6 +15,7 @@ export class Home implements OnInit {
   readonly loading = signal(true);
   readonly error = signal('');
   constructor(private readonly api: ApiService) {}
+  /** Load the independent home-page resources in one observable transaction. */
   ngOnInit(): void {
     forkJoin({
       events: this.api.getEvents(),

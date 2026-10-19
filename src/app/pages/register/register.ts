@@ -1,3 +1,5 @@
+/** @file Visitor registration page for an event selected by query string. */
+
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -39,6 +41,7 @@ export class Register implements OnInit {
       ],
     });
   }
+  /** Load the event identified by `event_id` and reset page state on navigation. */
   ngOnInit(): void {
     this.route.queryParamMap
       .pipe(
@@ -63,6 +66,7 @@ export class Register implements OnInit {
         this.loading.set(false);
       });
   }
+  /** Validate and submit the visitor registration to the API. */
   submit(): void {
     if (this.submitting() || !this.event() || isPastEvent(this.event()!)) return;
     if (this.form.invalid) {
@@ -85,10 +89,12 @@ export class Register implements OnInit {
         },
       });
   }
+  /** Return whether a named form control should display validation feedback. */
   invalid(name: keyof typeof this.form.controls): boolean {
     const control = this.form.controls[name];
     return control.invalid && (control.dirty || control.touched);
   }
+  /** Calculate the donation total represented by the selected ticket count. */
   total(): number {
     return (this.event()?.ticket_price || 0) * this.form.controls.ticket_count.value;
   }

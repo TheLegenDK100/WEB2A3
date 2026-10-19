@@ -1,3 +1,5 @@
+/** @file Deep-link route table for public visitor and administration pages. */
+
 import { Routes } from '@angular/router';
 import { Home } from './pages/home/home';
 import { Search } from './pages/search/search';
@@ -6,6 +8,7 @@ import { Register } from './pages/register/register';
 import { AdminEvents } from './pages/admin-events/admin-events';
 import { AdminEventForm } from './pages/admin-event-form/admin-event-form';
 import { NotFound } from './pages/not-found/not-found';
+/** Route metadata also supplies browser document titles for each page. */
 export const routes: Routes = [
   { path: '', component: Home, title: 'HopeBridge | Charity Events' },
   { path: 'search', component: Search, title: 'Search Events | HopeBridge' },

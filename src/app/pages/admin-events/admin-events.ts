@@ -1,3 +1,5 @@
+/** @file Administration event list and safe-delete workflow. */
+
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -28,6 +30,7 @@ export class AdminEvents implements OnInit {
   ngOnInit(): void {
     this.load();
   }
+  /** Refresh all event records, including suspended events. */
   load(): void {
     this.loading.set(true);
     this.api.getAdminEvents().subscribe({
@@ -41,6 +44,7 @@ export class AdminEvents implements OnInit {
       },
     });
   }
+  /** Return the administration status label for one event. */
   status(event: CharityEvent): string {
     if (event.is_suspended) return 'Suspended';
     return isPastEvent(event) ? 'Past' : 'Upcoming';
@@ -54,6 +58,7 @@ export class AdminEvents implements OnInit {
   registrationCount(): number {
     return this.events().reduce((total, event) => total + event.registration_count, 0);
   }
+  /** Delete an event only after the dialog and registration safeguards pass. */
   confirmDelete(): void {
     const target = this.deleteTarget();
     if (!target || target.registration_count > 0 || this.deleting()) return;
@@ -74,6 +79,7 @@ export class AdminEvents implements OnInit {
       },
     });
   }
+  /** Open the confirmation dialog for the selected event. */
   openDelete(event: CharityEvent): void {
     this.deleteTarget.set(event);
     this.deleteDialog.nativeElement.showModal();

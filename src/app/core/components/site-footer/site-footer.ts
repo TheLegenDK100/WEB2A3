@@ -1,3 +1,5 @@
+/** @file Shared footer component with the current copyright year. */
+
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 @Component({

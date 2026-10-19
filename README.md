@@ -27,6 +27,15 @@ All organisations, events, registrations, contact details and fundraising figure
 - Fundraising totals combine recorded progress with registration ticket pledges
 - Loading, empty, success, validation and server error states
 
+## Code documentation
+
+Project-owned JavaScript and TypeScript source includes JSDoc/TSDoc-style comments explaining module responsibilities, parameters, return values and key validation or asynchronous workflows.
+
+- `server/event_db.js` documents the shared MySQL pool and connection error handling.
+- `server/routes/apiRoutes.js` and `server/controllers/eventController.js` document the REST API and database operations.
+- `src/app/core/` documents typed API communication, shared models and event status handling.
+- `src/app/pages/` and `src/app/shared/` document page workflows, form validation, the English calendar and weather requests.
+
 ## Database setup
 
 The complete schema contains four categories, three organisations, ten events and twelve registrations. Two events are suspended and are available only in the administrative interface.

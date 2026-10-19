@@ -1,23 +1,39 @@
+/** @file Server-side validation for event and registration request bodies. */
+
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_PATTERN = /^[+()\d\s-]{8,30}$/;
 const DATE_TIME_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
 const { eventInstant } = require('./event-time');
 
+/** @param {unknown} value @returns {number} A finite number candidate or NaN. */
 function number(value) {
   return typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')
     ? Number(value)
     : NaN;
 }
 
+/** @param {unknown} value @returns {string} Trimmed text or an empty string. */
 function text(value) {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+/**
+ * Parse a positive integer identifier from a request parameter or body field.
+ *
+ * @param {unknown} value Candidate identifier.
+ * @returns {number|null} Positive integer or null when invalid.
+ */
 function positiveId(value) {
   const id = number(value);
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+/**
+ * Validate and normalise a visitor registration payload.
+ *
+ * @param {Record<string, unknown>} body Untrusted request body.
+ * @returns {{data: object, errors: string[]}} Normalised data and user-facing errors.
+ */
 function validateRegistration(body) {
   const data = {
     event_id: positiveId(body.event_id),
@@ -41,6 +57,12 @@ function validateRegistration(body) {
   return { data, errors };
 }
 
+/**
+ * Validate and normalise an administration event payload.
+ *
+ * @param {Record<string, unknown>} body Untrusted request body.
+ * @returns {{data: object, errors: string[]}} Normalised data and user-facing errors.
+ */
 function validateEvent(body) {
   const data = {
     organisation_id: positiveId(body.organisation_id),

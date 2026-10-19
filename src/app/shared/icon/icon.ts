@@ -1,3 +1,5 @@
+/** @file Small Lucide icon adapter used by accessible action controls. */
+
 import { Component, ElementRef, Input } from '@angular/core';
 import {
   ArrowLeft,
@@ -46,6 +48,7 @@ export type IconName = keyof typeof ICONS;
   `,
 })
 export class Icon {
+  /** @param host Element that receives the generated SVG icon. */
   constructor(private readonly host: ElementRef<HTMLElement>) {}
 
   @Input({ required: true })

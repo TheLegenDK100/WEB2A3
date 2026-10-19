@@ -1,3 +1,5 @@
+/** @file Shared responsive navigation component. */
+
 import { Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Icon } from '../../../shared/icon/icon';
@@ -9,6 +11,7 @@ import { Icon } from '../../../shared/icon/icon';
 })
 export class SiteHeader {
   readonly menuOpen = signal(false);
+  /** Close the mobile navigation after a route selection. */
   closeMenu(): void {
     this.menuOpen.set(false);
   }

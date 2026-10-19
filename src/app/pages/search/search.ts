@@ -1,3 +1,5 @@
+/** @file Multi-criteria public event search page. */
+
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
@@ -28,6 +30,7 @@ export class Search implements OnInit {
   ) {
     this.form = fb.nonNullable.group({ date: '', location: '', category: '' });
   }
+  /** Load category options from the API when the page is initialised. */
   ngOnInit(): void {
     this.api
       .getCategories()
@@ -68,6 +71,7 @@ export class Search implements OnInit {
         },
       });
   }
+  /** Reset controls and remove the previous search state from the DOM. */
   clear(): void {
     this.searchRequest?.unsubscribe();
     this.form.reset();

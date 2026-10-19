@@ -1,7 +1,10 @@
+/** @file Database-backed REST controllers for HopeBridge events. */
+
 const db = require('../event_db');
 const { positiveId, validateEvent, validateRegistration } = require('../validation');
 const { eventInstant, withEventInstant } = require('../event-time');
 
+/** Shared projection used to keep public and admin event responses consistent. */
 const EVENT_SELECT = `
   SELECT e.id, e.organisation_id, e.category_id, e.name, e.description,
     DATE_FORMAT(e.event_datetime, '%Y-%m-%dT%H:%i:%s') AS event_datetime,
@@ -21,11 +24,19 @@ const EVENT_SELECT = `
     FROM event_registrations GROUP BY event_id
   ) rs ON rs.event_id = e.id`;
 
+/**
+ * Convert an internal database failure into a safe API response.
+ *
+ * @param {import('express').Response} res Express response object.
+ * @param {Error} error Internal error for server-side logging.
+ * @returns {import('express').Response} The 500 response.
+ */
 function sendDatabaseError(res, error) {
   console.error(error);
   return res.status(500).json({ error: 'The database request could not be completed.' });
 }
 
+/** @type {import('express').RequestHandler} */
 async function getCategories(_req, res) {
   try {
     const [rows] = await db.query(
@@ -37,6 +48,7 @@ async function getCategories(_req, res) {
   }
 }
 
+/** @type {import('express').RequestHandler} */
 async function getOrganisations(_req, res) {
   try {
     const [rows] = await db.query(
@@ -48,6 +60,11 @@ async function getOrganisations(_req, res) {
   }
 }
 
+/**
+ * Return non-suspended events, optionally filtered by date, location and category.
+ *
+ * @type {import('express').RequestHandler}
+ */
 async function getPublicEvents(req, res) {
   // Build a parameterised query so optional filters never become executable SQL.
   const conditions = ['e.is_suspended = 0'];
@@ -84,6 +101,11 @@ async function getPublicEvents(req, res) {
   }
 }
 
+/**
+ * Return one public event and privacy-safe registration summaries.
+ *
+ * @type {import('express').RequestHandler}
+ */
 async function getPublicEvent(req, res) {
   const id = positiveId(req.params.id);
   if (!id) return res.status(400).json({ error: 'Event ID must be a positive number.' });
@@ -103,6 +125,11 @@ async function getPublicEvent(req, res) {
   }
 }
 
+/**
+ * Create a visitor registration inside a transaction locked to the event row.
+ *
+ * @type {import('express').RequestHandler}
+ */
 async function createRegistration(req, res) {
   const { data, errors } = validateRegistration(req.body || {});
   if (errors.length) return res.status(400).json({ error: errors[0], details: errors });
@@ -159,6 +186,7 @@ async function createRegistration(req, res) {
   }
 }
 
+/** @type {import('express').RequestHandler} */
 async function getAdminEvents(_req, res) {
   try {
     const [rows] = await db.query(`${EVENT_SELECT} ORDER BY e.event_datetime DESC`);
@@ -168,6 +196,7 @@ async function getAdminEvents(_req, res) {
   }
 }
 
+/** @type {import('express').RequestHandler} */
 async function getAdminEvent(req, res) {
   const id = positiveId(req.params.id);
   if (!id) return res.status(400).json({ error: 'Event ID must be a positive number.' });
@@ -189,6 +218,12 @@ async function getAdminEvent(req, res) {
 const EVENT_COLUMNS = `organisation_id, category_id, name, description, event_datetime, location,
   purpose, image_path, ticket_price, charity_goal, current_progress, is_suspended, latitude, longitude, event_timezone`;
 
+/**
+ * Map a validated event object to the database column order.
+ *
+ * @param {Record<string, unknown>} data Validated event data.
+ * @returns {unknown[]} Values matching `EVENT_COLUMNS`.
+ */
 function eventValues(data) {
   return [
     data.organisation_id,
@@ -209,6 +244,7 @@ function eventValues(data) {
   ];
 }
 
+/** @type {import('express').RequestHandler} */
 async function createEvent(req, res) {
   const { data, errors } = validateEvent(req.body || {});
   if (errors.length) return res.status(400).json({ error: errors[0], details: errors });
@@ -228,6 +264,7 @@ async function createEvent(req, res) {
   }
 }
 
+/** @type {import('express').RequestHandler} */
 async function updateEvent(req, res) {
   const id = positiveId(req.params.id);
   if (!id) return res.status(400).json({ error: 'Event ID must be a positive number.' });
@@ -252,6 +289,7 @@ async function updateEvent(req, res) {
   }
 }
 
+/** @type {import('express').RequestHandler} */
 async function deleteEvent(req, res) {
   const id = positiveId(req.params.id);
   if (!id) return res.status(400).json({ error: 'Event ID must be a positive number.' });

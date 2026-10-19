@@ -1,3 +1,5 @@
+/** @file Typed HTTP client for the HopeBridge REST API. */
+
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -6,6 +8,7 @@ import { Category, CharityEvent, EventPayload, Organisation, RegistrationPayload
 export class ApiService {
   private readonly baseUrl = '/api';
 
+  /** @param http Angular HTTP client used for all API requests. */
   constructor(private readonly http: HttpClient) {}
 
   /** Read public events using any combination of date, location, and category filters. */
@@ -23,6 +26,7 @@ export class ApiService {
   getEvent(id: number): Observable<CharityEvent> {
     return this.http.get<CharityEvent>(`${this.baseUrl}/events/${id}`);
   }
+  /** Read the database-provided event categories for the search form. */
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.baseUrl}/categories`);
   }

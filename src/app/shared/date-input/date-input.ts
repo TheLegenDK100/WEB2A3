@@ -1,3 +1,5 @@
+/** @file English calendar control implementing Angular's ControlValueAccessor contract. */
+
 import {
   ChangeDetectorRef,
   Component,
@@ -17,6 +19,12 @@ import {
 } from '@angular/forms';
 import { Icon } from '../icon/icon';
 
+/**
+ * Validate an ISO calendar date without relying on browser locale parsing.
+ *
+ * @param value Date text in `YYYY-MM-DD` format.
+ * @returns True when the date is a real calendar date.
+ */
 export function validCalendarDate(value: string): boolean {
   if (!/^[1-9]\d{3}-\d{2}-\d{2}$/.test(value)) return false;
   const date = new Date(`${value}T00:00:00Z`);
@@ -70,22 +78,27 @@ export class DateInput implements ControlValueAccessor, Validator {
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
 
+  /** Write the form model value into the date and time controls. */
   writeValue(value: string | null): void {
     const [date = '', time = ''] = (value || '').split('T');
     this.dateValue = date;
     this.timeValue = time;
     this.changeDetector.markForCheck();
   }
+  /** Register the callback used when the user selects a new value. */
   registerOnChange(fn: (value: string) => void): void {
     this.onChange = fn;
   }
+  /** Register the callback used when the control is touched. */
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
   }
+  /** Reflect the disabled state from the parent reactive form. */
   setDisabledState(disabled: boolean): void {
     this.disabled = disabled;
     this.changeDetector.markForCheck();
   }
+  /** Validate either a date-only or date-time form value. */
   validate(control: AbstractControl): ValidationErrors | null {
     const value = String(control.value || '');
     if (!value) return null;
@@ -95,11 +108,13 @@ export class DateInput implements ControlValueAccessor, Validator {
       : validCalendarDate(value);
     return valid && validCalendarDate(date) ? null : { calendarDate: true };
   }
+  /** Update the selected date and emit the combined control value. */
   changeDate(value: string): void {
     this.dateValue = value;
     if (this.withTime && value && !this.timeValue) this.timeValue = '09:00';
     this.emitValue();
   }
+  /** Update the selected time and emit the combined control value. */
   changeTime(value: string): void {
     this.timeValue = value;
     this.emitValue();
@@ -114,6 +129,7 @@ export class DateInput implements ControlValueAccessor, Validator {
         : this.dateValue,
     );
   }
+  /** Open the locale-independent English calendar dialog. */
   openCalendar(): void {
     if (this.disabled) return;
     const selected = validCalendarDate(this.dateValue)
@@ -127,6 +143,7 @@ export class DateInput implements ControlValueAccessor, Validator {
     this.calendar.nativeElement.close();
     this.touch();
   }
+  /** Move the visible calendar by a signed month offset. */
   moveMonth(offset: number): void {
     const next = new Date(Date.UTC(this.year, this.month + offset, 1));
     if (next.getUTCFullYear() < 1000 || next.getUTCFullYear() > 9999) return;
@@ -136,6 +153,7 @@ export class DateInput implements ControlValueAccessor, Validator {
   changeYear(value: string): void {
     if (/^[1-9]\d{3}$/.test(value)) this.year = Number(value);
   }
+  /** Return calendar cells, including zero placeholders before the first day. */
   days(): number[] {
     const offset = (new Date(Date.UTC(this.year, this.month, 1)).getUTCDay() + 6) % 7;
     const count = new Date(Date.UTC(this.year, this.month + 1, 0)).getUTCDate();
@@ -147,6 +165,7 @@ export class DateInput implements ControlValueAccessor, Validator {
   dayLabel(day: number): string {
     return `${day} ${this.months[this.month]} ${this.year}`;
   }
+  /** Select a calendar day and close the dialog. */
   selectDay(day: number): void {
     this.changeDate(this.isoDate(day));
     this.closeCalendar();

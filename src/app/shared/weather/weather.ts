@@ -1,3 +1,5 @@
+/** @file Optional event-day forecast component with bounded external API usage. */
+
 import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnChanges, OnDestroy, input, signal } from '@angular/core';
@@ -93,9 +95,11 @@ export class Weather implements OnChanges, OnDestroy {
         },
       });
   }
+  /** Cancel an in-flight forecast request when the component is removed. */
   ngOnDestroy(): void {
     this.request?.unsubscribe();
   }
+  /** Map Open-Meteo WMO codes to short English labels for the view. */
   private weatherLabel(code: number): string {
     if (code === 0) return 'Clear';
     if (code <= 3) return 'Partly cloudy';

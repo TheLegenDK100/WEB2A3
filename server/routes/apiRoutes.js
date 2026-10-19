@@ -1,6 +1,9 @@
+/** @file REST route declarations for public visitors and administration views. */
+
 const express = require('express');
 const controller = require('../controllers/eventController');
 
+/** @type {import('express').Router} */
 const router = express.Router();
 
 router.get('/events/search', controller.getPublicEvents);

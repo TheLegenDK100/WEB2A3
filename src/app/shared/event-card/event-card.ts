@@ -1,3 +1,5 @@
+/** @file Reusable event summary card used by home and search results. */
+
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -12,9 +14,11 @@ import { isPastEvent } from '../../core/event-status';
 })
 export class EventCard {
   readonly event = input.required<CharityEvent>();
+  /** Return whether the server-normalised event instant has passed. */
   isPast(): boolean {
     return isPastEvent(this.event());
   }
+  /** Calculate the capped fundraising percentage shown on the card. */
   progressPercent(): number {
     return Math.min(
       100,
